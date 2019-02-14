@@ -2,7 +2,7 @@
  
 CHEERS is a method to determine enrichment of annotations in GWAS significant loci.
  
-##**Requirements**
+**##Requirements**
  
 CHEERS is written for **Python 2.7**. It uses the following modules:
 os
