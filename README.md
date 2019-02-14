@@ -21,15 +21,15 @@ math
 
 **create_LD_blocks.py**
 
-Description:
-For a list of SNPs, it finds all the SNPs in LD (r2>0.8).
+Description:  
+For a list of SNPs, it finds all the SNPs in LD (r2>0.8).  
 
 *Usage*: 
-Create a directory named after the trait. Then move into the directory and run the command.
+Create a directory named after the trait. Then move into the directory and run the command.  
 
-mkdir trait_name
-cd trait_name
-python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR
+mkdir trait_name  
+cd trait_name  
+python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR  
 
 *Output*:
 Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are .txt files named after the lead SNP (for example results_ld_rs9989735.txt). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4)
@@ -52,12 +52,12 @@ This script is used to normalize read counts within peaks. It :
   --prefix PREFIX  file prefix (default: None)
   --outdir OUTDIR  directory where to output results (default: None)
  
-*Outputs*:
-prefix_normToMax.txt
-prefix_normToMax_quantileNorm.txt
-prefix_normToMax_quantileNorm_euclideanNorm.txt
+*Outputs*:  
+prefix_normToMax.txt  
+prefix_normToMax_quantileNorm.txt  
+prefix_normToMax_quantileNorm_euclideanNorm.txt  
  
-*Usage*:
+*Usage*:  
 python CHEERS_normalize.py --input ~/peak/counts/per/sample/ --prefix prefix --outdir ~/output/directory/
  
  
@@ -81,16 +81,16 @@ This script computes the disease enrichment of a provided set of SNPs and writes
   --trait TRAIT	Name of the analyzed trait (default: None)  
   --outdir OUTDIR  Directory where to output results (default: None)  
  
-*Outputs*:
-trait_uniquePeaks.txt - list of unique peaks and their ranks per sample
-trait _SNPsOverlappingPeaks.txt - list of all overlapping SNPs and peak ranks per sample
-trait _disease_enrichment_pValues.txt - enrichment p-values per sample
-trait _disease_enrichment_observedMeanRank.txt - observed mean ranks per sample
-trait.log - log file containing run information
+*Outputs*:  
+trait_uniquePeaks.txt - list of unique peaks and their ranks per sample  
+trait _SNPsOverlappingPeaks.txt - list of all overlapping SNPs and peak ranks per sample  
+trait _disease_enrichment_pValues.txt - enrichment p-values per sample  
+trait _disease_enrichment_observedMeanRank.txt - observed mean ranks per sample  
+trait.log - log file containing run information  
  
 *Usage*:
-python CHEERS_computeEnrichment.py --input normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/ --trait trait_name --outdir ~/output/directory/
-or 
-python CHEERS_computeEnrichment.py --input data.txt --snp_list snp_list.txt --trait trait_name --outdir ~/output/directory/
+python CHEERS_computeEnrichment.py --input normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/ --trait trait_name --outdir ~/output/directory/  
+or   
+python CHEERS_computeEnrichment.py --input data.txt --snp_list snp_list.txt --trait trait_name --outdir ~/output/directory/  
 
 
