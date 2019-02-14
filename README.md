@@ -19,7 +19,7 @@ math
  
 ## **How to use CHEERS**
 
-**create_LD_blocks.py**
+### **create_LD_blocks.py**
 
 Description:  
 For a list of SNPs, it finds all the SNPs in LD (r2>0.8).  
@@ -35,7 +35,7 @@ python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR
 Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are .txt files named after the lead SNP (for example results_ld_rs9989735.txt). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4)
 
  
-**CHEERS_normalize.py**
+### **CHEERS_normalize.py**
  
 *Description*:  
 This script is used to normalize read counts within peaks. It :  
@@ -61,7 +61,7 @@ prefix_normToMax_quantileNorm_euclideanNorm.txt
 python CHEERS_normalize.py --input ~/peak/counts/per/sample/ --prefix prefix --outdir ~/output/directory/
  
  
-**CHEERS_computeEnrichment.py**
+### **CHEERS_computeEnrichment.py**
  
 *Description*:  
  
