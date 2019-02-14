@@ -72,14 +72,14 @@ This script computes the disease enrichment of a provided set of SNPs and writes
 4)    Directory where to output results
  
 *Arguments*:
-   -h, --help   	show this help message and exit
-  --input INPUT	Text file containing peak coordinates and specificity
-               	scores for each of the analyzed samples (default: None)
-  --ld LD      	Directory with LD information for each SNP (default: None)
+   -h, --help   	show this help message and exit  
+  --input INPUT	Text file containing peak coordinates and specificity  
+               	scores for each of the analyzed samples (default: None)  
+  --ld LD      	Directory with LD information for each SNP (default: None)  
   --snp_list SNP_LIST  list of SNPs if CHEERS is used on finemapped set
-                       (default: None)
-  --trait TRAIT	Name of the analyzed trait (default: None)
-  --outdir OUTDIR  Directory where to output results (default: None)
+                       (default: None)  
+  --trait TRAIT	Name of the analyzed trait (default: None)  
+  --outdir OUTDIR  Directory where to output results (default: None)  
  
 *Outputs*:
 trait_uniquePeaks.txt - list of unique peaks and their ranks per sample
