@@ -5,17 +5,17 @@ CHEERS is a method to determine enrichment of annotations in GWAS significant lo
 **##Requirements**
  
 CHEERS is written for **Python 2.7**. It uses the following modules:
-os
-sys
-glob
-re
-subprocess 
-time
-numpy
-pandas
-argparse
-scipy
-math
+os  
+sys  
+glob  
+re  
+subprocess  
+time  
+numpy  
+pandas  
+argparse  
+scipy  
+math  
  
 ##**Usage**
 
