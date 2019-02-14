@@ -13,6 +13,8 @@ inputs:
 
 usage:
 python CHEERS_computeEnrichment.py --input data.txt --ld ~/LD/trait/ --trait trait_name --outdir ~/output/directory/
+or 
+python CHEERS_computeEnrichment.py --input data.txt --snp_list snp_list.txt --trait trait_name --outdir ~/output/directory/
 '''
 
 import os
