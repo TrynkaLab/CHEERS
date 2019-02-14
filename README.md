@@ -88,7 +88,7 @@ trait _disease_enrichment_pValues.txt - enrichment p-values per sample
 trait _disease_enrichment_observedMeanRank.txt - observed mean ranks per sample  
 trait.log - log file containing run information  
  
-*Usage*:
+*Usage*:  
 python CHEERS_computeEnrichment.py --input normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/ --trait trait_name --outdir ~/output/directory/  
 or   
 python CHEERS_computeEnrichment.py --input data.txt --snp_list snp_list.txt --trait trait_name --outdir ~/output/directory/  
