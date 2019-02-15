@@ -47,10 +47,10 @@ This script is used to normalize read counts within peaks. It :
  
  
 *Arguments*:  
-  -h, --help   	show this help message and exit
-  --input INPUT	path to files with read counts per peak (default: None)
-  --prefix PREFIX  file prefix (default: None)
-  --outdir OUTDIR  directory where to output results (default: None)
+  -h, --help   	show this help message and exit  
+  --input INPUT	path to files with read counts per peak (default: None)  
+  --prefix PREFIX  file prefix (default: None)  
+  --outdir OUTDIR  directory where to output results (default: None)  
  
 *Outputs*:  
 prefix_normToMax.txt  
