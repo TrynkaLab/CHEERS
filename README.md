@@ -31,6 +31,8 @@ mkdir trait_name
 cd trait_name  
 python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR  
 
+We uploaded the GRCh38 LD files to ftp://ngs.sanger.ac.uk/production. They are in the trynka/LD_GRCh38/ directory.
+
 *Output*:  
 Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are .txt files named after the lead SNP (for example results_ld_rs9989735.txt). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4)
 
