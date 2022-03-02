@@ -17,24 +17,42 @@ CHEERS is written for **Python 3.8**. It uses the following modules:
 9. `scipy`
 10. `math`
  
-## **How to use CHEERS**
+## How to use CHEERS
 
-### **create_LD_blocks.py**
+### create_LD_blocks.py
 
-Description:  
-For a list of SNPs, it finds all the SNPs in LD (r2>0.8).  
+Description:
 
-*Usage*:  
-Create a directory named after the trait. Then move into the directory and run the command.    
+For a list of SNPs, it finds all the SNPs in LD (r2 > 0.8).
 
-mkdir trait_name  
-cd trait_name  
-python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR  
+*Usage*:
 
-We uploaded the GRCh38 LD files to ftp://ngs.sanger.ac.uk/production. They are in the trynka/LD_GRCh38/ directory.
+```
+usage: create_LD_blocks.py [-h] snp_map outdir tabix_dir
 
-*Output*:  
-Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are .txt files named after the lead SNP (for example results_ld_rs9989735.txt). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4)
+Tagging SNP identification for CHEERS disease enrichment
+
+positional arguments:
+  snp_map     File containing SNPs to query for LD information
+  outdir      Directory for result output
+  tabix_dir   Directory containing LD tabix files
+```
+
+We uploaded the GRCh38 LD files to `ftp://ngs.sanger.ac.uk/production`. They are in the `trynka/LD_GRCh38/` directory.
+
+*Outputs*:
+
+Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are `.txt` files named after the lead SNP (for example `results_ld_rs9989735.txt`). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4).
+
+*Example*:
+
+Create a directory named after the trait. Then move into the directory and run the command.
+
+```
+mkdir trait_name
+cd trait_name
+python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR
+```
 
 -----
 
