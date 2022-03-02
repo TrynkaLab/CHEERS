@@ -21,11 +21,11 @@ CHEERS is written for **Python 3.8**. It uses the following modules:
 
 ### create_LD_blocks.py
 
-Description:
+**Description**:
 
 For a list of SNPs, it finds all the SNPs in LD (r2 > 0.8).
 
-*Usage*:
+**Usage**:
 
 ```
 usage: create_LD_blocks.py [-h] snp_map outdir tabix_dir
@@ -40,11 +40,11 @@ positional arguments:
 
 We uploaded the GRCh38 LD files to `ftp://ngs.sanger.ac.uk/production`. They are in the `trynka/LD_GRCh38/` directory.
 
-*Outputs*:
+**Outputs**:
 
 Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are `.txt` files named after the lead SNP (for example `results_ld_rs9989735.txt`). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4).
 
-*Example*:
+**Example**:
 
 Create a directory named after the trait. Then move into the directory and run the command.
 
@@ -58,7 +58,7 @@ python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR
 
 ### CHEERS_normalize.py
  
-*Description*:
+**Description**:
 
 This script is used to normalize read counts within peaks. It:
 
@@ -68,7 +68,7 @@ This script is used to normalize read counts within peaks. It:
 4. quantile normalizes the library size-corrected peak counts
 5. performs Euclidean normalization to obtain a cell type specificity score
 
-*Usage*:
+**Usage**:
 
 ```
 usage: CHEERS_normalize.py [-h] prefix outdir [input [input ...]]
@@ -84,13 +84,13 @@ optional arguments:
   -h, --help  show this help message and exit
 ```
 
-*Outputs*:
+**Outputs**:
 
 1. `prefix_counts_normToMax.txt`
 2. `prefix_counts_normToMax_quantileNorm.txt`
 3. `prefix_counts_normToMax_quantileNorm_euclideanNorm.txt`
  
-*Example*:
+**Example**:
 
 ```
 python CHEERS_normalize.py prefix ~/output/directory ~/peak/counts/per/sample/*.txt
@@ -100,7 +100,7 @@ python CHEERS_normalize.py prefix ~/output/directory ~/peak/counts/per/sample/*.
 
 ### CHEERS_computeEnrichment.py
  
-*Description*:  
+**Description**:  
  
 This script computes the disease enrichment of a provided set of SNPs and writes the output to tab-delimited files. It takes 4 inputs to calculate the enrichment p-value:
 
@@ -109,7 +109,7 @@ This script computes the disease enrichment of a provided set of SNPs and writes
 3. trait name that will be used for output prefix
 4. Directory where to output results
 
-*Usage*:
+**Usage**:
 
 ```
 usage: CHEERS_computeEnrichment.py [-h] (--ld LD | --snp_list SNP_LIST) trait outdir input
@@ -127,7 +127,7 @@ optional arguments:
   --snp_list SNP_LIST  List of SNPs if CHEERS is used on fine-mapped set
 ```
 
-*Outputs*:
+**Outputs**:
 
 1. `trait_uniquePeaks.txt` - list of unique peaks and their ranks per sample
 2. `trait_SNPsOverlappingPeaks.txt` - list of all overlapping SNPs and peak ranks per sample
@@ -135,13 +135,13 @@ optional arguments:
 4. `trait _disease_enrichment_observedMeanRank.txt` - observed mean ranks per sample
 5. `trait.log` - log file containing run information
  
-*Usage 1*:
+**Example 1**:
 
 ```
 python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/
 ```
 
-*Usage 2*:
+**Example 2**:
 
 ```
 python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --snp_list snp_list.txt
