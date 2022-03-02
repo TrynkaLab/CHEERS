@@ -1,5 +1,59 @@
 #!/usr/bin/env python
 
+'''
+:File: CHEERS_computeEnrichment.py
+:Author: Blagoje Soskic, Wellcome Sanger Institute, <bs11@sanger.ac.uk>
+:Last updated: 2 March 2022
+
+This script computes the disease enrichment of a provided set of SNPs and writes the output to tab-delimited files. 
+It takes 4 inputs to calculate the enrichment p-value:
+
+1. Output from CHEERS_normalize.py. This is the text file containing peak coordinates and specificity scores for each 
+of the analyzed samples(prefix_count_normToMax_quantileNorm_euclideanNorm.txt).
+2. Output from create_LD_blocks.py - directory with LD information for each SNP. Alternatively provide txt file with 
+fine-mapped SNP set.
+3. trait name that will be used for output prefix
+4. Directory where to output results
+
+usage:
+python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/
+or 
+python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --snp_list snp_list.txt
+
+
+Copyright (C) 2019  Blagoje Soskic
+
+This file is part of CHEERS code.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+BY USING THE SOFTWARE YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTAND THE
+TERMS OF USE BELOW. 
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+THIS SOFTWARE IS TO BE USED AS A RESEARCH TOOL ONLY. THE SOFTWARE TOOL SHALL
+NOT BE USED AS A DIAGNOSTIC DECISION MAKING SYSTEM AND MUST NOT BE USED TO
+MAKE A CLINICAL DIAGNOSIS OR REPLACE OR OVERRULE A LICENSED HEALTH CARE
+PROFESSIONAL'S JUDGMENT OR CLINICAL DIAGNOSIS. ANY ACTION THE RESEARCHER TAKES
+IN RESPONSE TO THE INFORMATION CONTAINED WITHIN IS AT THE RESEARCHER'S
+DISCRETION ONLY.
+'''
+
 import argparse
 import math
 import os

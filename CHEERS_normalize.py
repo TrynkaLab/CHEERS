@@ -1,8 +1,63 @@
 #!/usr/bin/env python
 
+'''
+:File: CHEERS_normalize.py
+:Author: Blagoje Soskic, Wellcome Sanger Institute, <bs11@sanger.ac.uk>
+:Last updated: 2 March 2022
+
+This script is used to normalize read counts within peaks. It:
+
+1. loads output of featureCounts (each txt file is a sample that contains 4 tab delimited columns without header: chr, start, end, count)
+2. scales read counts to the largest library size
+3. removes the bottom 10th percentile of peaks with the lowest read counts
+4. quantile normalizes the library size-corrected peak counts
+5. performs Euclidean normalization to obtain a cell type specificity score
+
+Outputs:
+
+1. prefix_counts_normToMax.txt
+2. prefix_counts_normToMax_quantileNorm.txt
+3. prefix_counts_normToMax_quantileNorm_euclideanNorm.txt
+
+Usage:
+    python CHEERS_normalize.py prefix ~/output/directory ~/peak/counts/per/sample/*.txt
+
+
+Copyright (C) 2019  Blagoje Soskic
+
+This file is part of CHEERS code.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+BY USING THE SOFTWARE YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTAND THE
+TERMS OF USE BELOW. 
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+THIS SOFTWARE IS TO BE USED AS A RESEARCH TOOL ONLY. THE SOFTWARE TOOL SHALL
+NOT BE USED AS A DIAGNOSTIC DECISION MAKING SYSTEM AND MUST NOT BE USED TO
+MAKE A CLINICAL DIAGNOSIS OR REPLACE OR OVERRULE A LICENSED HEALTH CARE
+PROFESSIONAL'S JUDGMENT OR CLINICAL DIAGNOSIS. ANY ACTION THE RESEARCHER TAKES
+IN RESPONSE TO THE INFORMATION CONTAINED WITHIN IS AT THE RESEARCHER'S
+DISCRETION ONLY.
+'''
+
 import argparse
 import functools
-import glob
 import os
 import sys
 
