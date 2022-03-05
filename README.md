@@ -96,6 +96,13 @@ optional arguments:
 python CHEERS_normalize.py prefix ~/output/directory ~/peak/counts/per/sample/*.txt
 ```
 
+**Input Data Format**:
+
+```
+chr1  100 200 20
+chr2  400 450 15
+```
+
 -----
 
 ### CHEERS_computeEnrichment.py
@@ -145,4 +152,14 @@ python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quan
 
 ```
 python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --snp_list snp_list.txt
+```
+
+**Input Data Format**:
+
+*SNP List*
+
+```
+rs001 chr1  20
+rs002 chr2  50
+rs003 chr3  100
 ```
