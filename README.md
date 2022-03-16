@@ -1,74 +1,93 @@
 # CHEERS
  
-CHEERS (Chromatin Element Enrichment Ranking by Specificity) is a method to determine enrichment of annotations in GWAS significant loci. In addition to SNP-peak overlap, CHEERS takes into account peak properties as reflected by quantitative changes in read counts within peaks. 
+CHEERS (Chromatin Element Enrichment Ranking by Specificity) is a method to determine enrichment of annotations in GWAS significant loci. In addition to SNP-peak overlap, CHEERS takes into account peak properties as reflected by quantitative changes in read counts within peaks.
  
 ## Requirements
  
-CHEERS is written for **Python 3.8**. It uses the following modules:
+CHEERS is written for **Python 3.8**. It uses the following base modules:
 
-1. `os`
-2. `sys`
-3. `subprocess`
-4. `time`
-5. `numpy`
-6. `pandas`
-7. `argparse`
-8. `functools`
-9. `scipy`
-10. `math`
+1. `argparse`
+2. `functools`
+3. `gzip`
+4. `io`
+5. `math`
+6. `os`
+7. `re`
+8. `sys`
+9. `time`
+
+In addition, CHEERS requires the following modules:
+
+1. `numpy >= 1.21.3`
+2. `pandas >= 1.3.4`
+3. `requests >= 2.26.0`
+4. `scipy >= 1.8.0`
+
+You can install these using the following command:
+
+```
+python3 -m pip install numpy==1.21.3 pandas==1.3.4 requests==2.26.0 scipy==1.8.0
+```
  
 ## How to use CHEERS
 
-### create_LD_blocks.py
+### generate_mock_dataset.py
 
-**Description**:
+#### Description
 
-For a list of SNPs, it finds all the SNPs in LD (r2 > 0.8).
+Generates a mock ATAC-Seq dataset to run CHEERS on. The output data is in the exact format that CHEERS expects as input. The script pulls data from a publicly-available [ATAC-Seq experiment](https://doi.org/10.1038/s41588-019-0505-9) that has been deposited to the NCBI's SRA.
 
-**Usage**:
+**Note**: Generating the mock dataset requires an internet connection.
+
+**Note**: The mock data uses pseudorandom sampling of the original data. Set `--seed` to generate reproducible mock data.
+
+#### Usage
+
+The number of peaks (`n_peaks`) is restricted between 1 and 100,000. The number of SNPs (`n_snps`) is restricted between 1 and `n_peaks`. The proportion of SNPs in peaks (`prop_snps_in_peaks`) is a decimal value between 0.0 and 1.0.
 
 ```
-usage: create_LD_blocks.py [-h] snp_map outdir tabix_dir
+usage: generate_mock_dataset.py [-h] [--seed SEED] n_peaks n_snps prop_snps_in_peaks out_dir
 
-Tagging SNP identification for CHEERS disease enrichment
+Generate mock dataset for CHEERS analysis
 
 positional arguments:
-  snp_map     File containing SNPs to query for LD information
-  outdir      Directory for result output
-  tabix_dir   Directory containing LD tabix files
+  n_peaks             Number of peaks to sample from a real dataset
+  n_snps              Number of SNPs to generate within the dataset
+  prop_snps_in_peaks  Proportion of SNPs that are in peaks
+  out_dir             Output directory
+
+optional arguments:
+  -h, --help          show this help message and exit
+  --seed SEED         Set a seed for reproducible results
 ```
 
-We uploaded the GRCh38 LD files to `ftp://ngs.sanger.ac.uk/production`. They are in the `trynka/LD_GRCh38/` directory.
+#### Outputs
 
-**Outputs**:
+1. `*_ReadsInPeaks.txt` - Read count files that can be generated from an ATAC-Seq experiment over a set of consensus peaks. Each file represents a unique condition.
+2. `snp_list.txt` - A list of SNPs, some of which overlap peaks in the mock data.
 
-Parent directory is the name of the trait; within that directory there are subdirectories for all the chromosomes (chr1, chr2...) and within each of these there are `.txt` files named after the lead SNP (for example `results_ld_rs9989735.txt`). Each file contains all the SNPs in the LD with the lead (python indexing: snp name is at position 3, chr at position 0 and base pair information is at position 4).
-
-**Example**:
-
-Create a directory named after the trait. Then move into the directory and run the command.
+#### Example
 
 ```
-mkdir trait_name
-cd trait_name
-python create_LD_blocks.py SNP_LIST OUTPUT_DIR LD_DIR
+mkdir test_input/
+python3 generate_mock_dataset.py 10000 1000 0.25 test_input/ --seed 42
 ```
 
 -----
 
 ### CHEERS_normalize.py
  
-**Description**:
+#### Description
 
 This script is used to normalize read counts within peaks. It:
 
-1. loads output of featureCounts (each txt file is a sample that contains 4 tab delimited columns without header: chr, start, end, count)
-2. scales read counts to the largest library size
-3. removes the bottom 10th percentile of peaks with the lowest read counts
-4. quantile normalizes the library size-corrected peak counts
-5. performs Euclidean normalization to obtain a cell type specificity score
+1. Loads an input file containing read counts per peak. The format is provided below and can be generated using `generate_mock_dataset.py`.
+2. Scales read counts to the largest library size.
+3. Removes the bottom 10th percentile of peaks with the lowest read counts.
+4. Quantile normalizes the library size-corrected peak counts.
+5. Performs Euclidean normalization to obtain a cell type specificity score.
 
-**Usage**:
+#### Usage
 
 ```
 usage: CHEERS_normalize.py [-h] prefix outdir [input [input ...]]
@@ -84,79 +103,85 @@ optional arguments:
   -h, --help  show this help message and exit
 ```
 
-**Outputs**:
+#### Outputs
 
-1. `prefix_counts_normToMax.txt`
-2. `prefix_counts_normToMax_quantileNorm.txt`
-3. `prefix_counts_normToMax_quantileNorm_euclideanNorm.txt`
+1. `prefix_counts_normToMax.txt` - Counts normalized to the largest library size.
+2. `prefix_counts_normToMax_quantileNorm.txt` - Quantile-normalized counts on the top 90th percentile of peaks.
+3. `prefix_counts_normToMax_quantileNorm_euclideanNorm.txt` - Euclidean normalized counts that represent cell type specificity scores.
  
-**Example**:
+#### Example
 
 ```
-python CHEERS_normalize.py prefix ~/output/directory ~/peak/counts/per/sample/*.txt
+mkdir test_input/
+python3 generate_mock_dataset.py 10000 1000 0.25 test_input/ --seed 42
+python3 CHEERS_normalize.py trait test_input/ test_input/*_ReadsInPeaks.txt
 ```
 
-**Input Data Format**:
+#### Input Data Format
+
+This is the expected format of the file containing read counts per peak for a specific condition. The columns are chromosome, start, end, and read counts per peak.
 
 ```
 chr1  100 200 20
 chr2  400 450 15
+chr3  500 600 10
 ```
 
 -----
 
 ### CHEERS_computeEnrichment.py
- 
-**Description**:  
- 
+
+#### Description
+
 This script computes the disease enrichment of a provided set of SNPs and writes the output to tab-delimited files. It takes 4 inputs to calculate the enrichment p-value:
 
-1. Output from CHEERS_normalize.py. This is the text file containing peak coordinates and specificity scores for each of the analyzed samples(`prefix_count_normToMax_quantileNorm_euclideanNorm.txt`).
-2. Output from `create_LD_blocks.py` - directory with LD information for each SNP. Alternatively provide txt file with fine-mapped SNP set.
-3. trait name that will be used for output prefix
-4. Directory where to output results
+1. Trait name that will be used as a prefix for the output.
+2. Directory for result output.
+3. Cell type specificity scores that are generated after running `CHEERS_normalize.py`.
+4. A fine-mapped SNP set to test for enrichment. The format is provided below and can be generated using `generate_mock_dataset.py`.
 
-**Usage**:
+In the original CHEERS implementation, peaks were ranked from 0 to N-1 and the standard deviation of the uniform distribution was calculated using the floor of a ratio. This implementation ranks peaks from 1 to N and calculates the ratio for the standard deviation as a floating point value. If you want to generate the same p-values that were generated from the original CHEERS implementation, use the `--old_p_values` flag.
+
+#### Usage
 
 ```
-usage: CHEERS_computeEnrichment.py [-h] (--ld LD | --snp_list SNP_LIST) trait outdir input
+usage: CHEERS_computeEnrichment.py [-h] [--old_p_values] trait outdir input snp_list
 
 CHEERS computes the disease enrichment within functional annotations by taking into account quantitative changes in read counts within peaks
 
 positional arguments:
-  trait                Name of the analyzed trait
-  outdir               Directory for result output
-  input                Text file containing peak coordinates and specificity scores for each of the analyzed samples
+  trait           Name of the analyzed trait
+  outdir          Directory for result output
+  input           Text file containing peak coordinates and specificity scores for each of the analyzed samples
+  snp_list        List of SNPs
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --ld LD              Directory with LD information for each SNP if CHEERS is used on all SNPs in LD
-  --snp_list SNP_LIST  List of SNPs if CHEERS is used on fine-mapped set
+  -h, --help      show this help message and exit
+  --old_p_values  Calculate p-values as was done in the original implementation of CHEERS
 ```
 
-**Outputs**:
+#### Outputs
 
-1. `trait_uniquePeaks.txt` - list of unique peaks and their ranks per sample
-2. `trait_SNPsOverlappingPeaks.txt` - list of all overlapping SNPs and peak ranks per sample
-3. `trait_disease_enrichment_pValues.txt` - enrichment p-values per sample
-4. `trait _disease_enrichment_observedMeanRank.txt` - observed mean ranks per sample
-5. `trait.log` - log file containing run information
+1. `trait_uniquePeaks.txt` - List of unique peaks and their ranks per sample.
+2. `trait_SNPsOverlappingPeaks.txt` - List of all overlapping SNPs and peak ranks per sample.
+3. `trait_disease_enrichment_pValues.txt` - Enrichment p-values per sample.
+4. `trait_disease_enrichment_observedMeanRank.txt` - Observed mean ranks per sample.
+5. `trait.log` - Log file containing run information.
  
-**Example 1**:
+#### Example
 
 ```
-python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/
+mkdir test_input/
+python3 generate_mock_dataset.py 10000 1000 0.25 test_input/ --seed 42
+python3 CHEERS_normalize.py trait test_input/ test_input/*_ReadsInPeaks.txt
+
+mkdir test_output/
+python3 CHEERS_computeEnrichment.py trait test_output/ test_input/trait_counts_normToMax_quantileNorm_euclideanNorm.txt test_input/snp_list.txt
 ```
 
-**Example 2**:
+#### Input Data Format
 
-```
-python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --snp_list snp_list.txt
-```
-
-**Input Data Format**:
-
-*SNP List*
+This is the expected format of the file containing the fine-mapped set of SNPs to test for enrichment. The columns are SNP name, chromosome, and position.
 
 ```
 rs001 chr1  20

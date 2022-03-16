@@ -3,24 +3,28 @@
 '''
 :File: CHEERS_normalize.py
 :Author: Blagoje Soskic, Wellcome Sanger Institute, <bs11@sanger.ac.uk>
-:Last updated: 2 March 2022
+:Updated By: Nikhil Milind, Wellcome Sanger Institute, <nm18@sanger.ac.uk>
+:Last Updated: 16 March 2022
 
 This script is used to normalize read counts within peaks. It:
 
-1. loads output of featureCounts (each txt file is a sample that contains 4 tab delimited columns without header: chr, start, end, count)
-2. scales read counts to the largest library size
-3. removes the bottom 10th percentile of peaks with the lowest read counts
-4. quantile normalizes the library size-corrected peak counts
-5. performs Euclidean normalization to obtain a cell type specificity score
+1. Loads an input file containing read counts per peak. The format is provided
+    below and can be generated using generate_mock_dataset.py.
+2. Scales read counts to the largest library size.
+3. Removes the bottom 10th percentile of peaks with the lowest read counts.
+4. Quantile normalizes the library size-corrected peak counts.
+5. Performs Euclidean normalization to obtain a cell type specificity score.
 
 Outputs:
 
-1. prefix_counts_normToMax.txt
-2. prefix_counts_normToMax_quantileNorm.txt
-3. prefix_counts_normToMax_quantileNorm_euclideanNorm.txt
+1. prefix_counts_normToMax.txt - Counts normalized to the largest library size.
+2. prefix_counts_normToMax_quantileNorm.txt - Quantile-normalized counts on the
+    top 90th percentile of peaks.
+3. prefix_counts_normToMax_quantileNorm_euclideanNorm.txt - Euclidean 
+    normalized counts that represent cell type specificity scores.
 
 Usage:
-    python CHEERS_normalize.py prefix ~/output/directory ~/peak/counts/per/sample/*.txt
+    python3 CHEERS_normalize.py trait test_input/ test_input/*_ReadsInPeaks.txt
 
 
 Copyright (C) 2019  Blagoje Soskic

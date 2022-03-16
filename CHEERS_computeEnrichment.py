@@ -3,22 +3,29 @@
 '''
 :File: CHEERS_computeEnrichment.py
 :Author: Blagoje Soskic, Wellcome Sanger Institute, <bs11@sanger.ac.uk>
-:Last updated: 2 March 2022
+:Updated By: Nikhil Milind, Wellcome Sanger Institute, <nm18@sanger.ac.uk>
+:Last Updated: 16 March 2022
 
-This script computes the disease enrichment of a provided set of SNPs and writes the output to tab-delimited files. 
-It takes 4 inputs to calculate the enrichment p-value:
+This script computes the disease enrichment of a provided set of SNPs and
+writes the output to tab-delimited files. It takes 4 inputs to calculate the
+enrichment p-value:
 
-1. Output from CHEERS_normalize.py. This is the text file containing peak coordinates and specificity scores for each 
-of the analyzed samples(prefix_count_normToMax_quantileNorm_euclideanNorm.txt).
-2. Output from create_LD_blocks.py - directory with LD information for each SNP. Alternatively provide txt file with 
-fine-mapped SNP set.
-3. trait name that will be used for output prefix
-4. Directory where to output results
+1. Trait name that will be used as a prefix for the output.
+2. Directory for result output.
+3. Cell type specificity scores that are generated after running 
+    CHEERS_normalize.py.
+4. A fine-mapped SNP set to test for enrichment. The format is provided below
+    and can be generated using generate_mock_dataset.py.
 
-usage:
-python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --ld ~/LD/trait/
-or 
-python CHEERS_computeEnrichment.py trait_name ~/output/directory/ normToMax_quantileNorm_euclideanNorm.txt --snp_list snp_list.txt
+In the original CHEERS implementation, peaks were ranked from 0 to N-1 and the
+standard deviation of the uniform distribution was calculated using the floor
+of a ratio. This implementation ranks peaks from 1 to N and calculates the
+ratio for the standard deviation as a floating point value. If you want to
+generate the same p-values that were generated from the original CHEERS
+implementation, use the --old_p_values flag.
+
+Usage:
+    python3 CHEERS_computeEnrichment.py trait test_output/ test_input/trait_counts_normToMax_quantileNorm_euclideanNorm.txt test_input/snp_list.txt
 
 
 Copyright (C) 2019  Blagoje Soskic
@@ -78,22 +85,16 @@ def parse_arguments():
     parser.add_argument('trait', help='Name of the analyzed trait')
     parser.add_argument('outdir', help='Directory for result output')
     parser.add_argument('input', help='Text file containing peak coordinates and specificity scores for each of the analyzed samples')
-    
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--ld', help='Directory with LD information for each SNP if CHEERS is used on all SNPs in LD')
-    group.add_argument('--snp_list', help='List of SNPs if CHEERS is used on fine-mapped set')
-    
+    parser.add_argument('snp_list', help='List of SNPs')
+    parser.add_argument('--old_p_values', action='store_true', help='Calculate p-values as was done in the original implementation of CHEERS')
+
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
         print(f'{args.input} is not a valid path to a file', file=sys.stderr)
         exit(2)
     
-    if args.ld and not os.path.isdir(args.ld):
-        print(f'{args.ld} is not a valid path to a directory', file=sys.stderr)
-        exit(2)
-    
-    if args.snp_list and not os.path.isfile(args.snp_list):
+    if not os.path.isfile(args.snp_list):
         print(f'{args.snp_list} is not a valid path to a file', file=sys.stderr)
         exit(2)
 
@@ -113,7 +114,10 @@ def load_data(file_path):
     :return: A data frame of the peak specificity scores.
     '''
 
-    return pd.read_csv(file_path, sep='\t').sort_values(['chr', 'start', 'end'], ignore_index=True)
+    norm_matrix = pd.read_csv(file_path, sep='\t')
+    norm_matrix.sort_values(['chr', 'start', 'end'], ignore_index=True, inplace=True)
+
+    return norm_matrix
 
 
 def rank_norm_data(norm_data):
@@ -132,35 +136,6 @@ def rank_norm_data(norm_data):
     return pd.merge(peak_info, rank_matrix, left_index=True, right_index=True)
 
 
-def load_ld_snps(ld_dir):
-
-    '''
-    Load SNPs that are in LD with the tag SNPs.
-
-    :param ld_dir: A path to the directory containing the LD information.
-    :return: A data frame of SNPs.
-    '''
-
-    ld_dfs = list()
-
-    chr_dirs = os.listdir(ld_dir)
-
-    for chr_dir in chr_dirs:
-
-        lead_snp_files = os.listdir(os.path.join(ld_dir, chr_dir))
-
-        for lead_snp_file in lead_snp_files:
-
-            lead_snp_path = os.path.join(ld_dir, chr_dir, lead_snp_file)
-            ld_df = pd.read_csv(lead_snp_path, sep='\t')
-            ld_dfs.append(ld_df.iloc[:, [3, 0, 4]])
-
-    snp_list = pd.concat(ld_dfs, axis=1)
-    snp_list.columns = ['name', 'chr', 'pos']
-
-    return snp_list
-
-
 def load_snp_list(file_path):
 
     '''
@@ -171,7 +146,6 @@ def load_snp_list(file_path):
     '''
 
     snp_list = pd.read_csv(file_path, sep='\t', header=None)
-    snp_list = snp_list.iloc[:, [0, 1, 2]]
     snp_list.columns = ['name', 'chr', 'pos']
     snp_list.sort_values(['chr', 'pos'], inplace=True)
 
@@ -200,10 +174,13 @@ def overlap_peaks_with_snps(peak_info, snp_list):
     peak_index, peak = next(peak_iterator, (None, None))
     snp_index, snp = next(snp_iterator, (None, None))
 
+    # Iterate until either the peaks or SNPs are all considered for overlap
     while peak_index is not None and snp_index is not None:
-    
+
+        # If the peak occurs before the SNP by genomic coordinates, increment the peak
+        # If the SNP occurs before the peak by genomic coordinates, increment the SNP
         if peak.chr == snp.chr:
-            if snp.pos >= peak.start and snp.pos <= peak.end:
+            if peak.start <= snp.pos <= peak.end:
                 peak_overlaps.append(peak_index)
                 snp_overlaps.append(snp_index)
                 snp_index, snp = next(snp_iterator, (None, None))
@@ -231,27 +208,33 @@ def overlap_peaks_with_snps(peak_info, snp_list):
     return overlap_matrix, unique_peaks
 
 
-def calc_enrichment(unique_peaks, num_peaks):
+def calc_enrichment(unique_peaks, num_peaks, old_p_values):
 
     '''
     Use the statistical model to calculate enrichment in each condition.
 
     :param unique_peaks: Unique peaks with overlapping SNPs.
     :param num_peaks: The number of peaks used to rank the peaks.
+    :param old_p_values: Calculate p-values to be consistent with the original CHEERS implementation.
     :return: A tuple of observed rank means, p-values, N, n, grand mean, and grand s.d.
     '''
 
-    # TODO: Paper mentions ranks from 1...N but implementation uses 0...N-1
+    # Paper mentions ranks from 1...N but implementation uses 0...N-1
     # I'm subtracting 1 from the mean to be consistent with the original CHEERS
-    # Check if this is valid with the statistical model
-    observed_rank_means = np.mean(unique_peaks.drop(['chr', 'start', 'end'], axis=1) - 1, axis=0)
+    if old_p_values:
+        observed_rank_means = np.mean(unique_peaks.drop(['chr', 'start', 'end'], axis=1) - 1, axis=0)
+    else:
+        observed_rank_means = np.mean(unique_peaks.drop(['chr', 'start', 'end'], axis=1), axis=0)
 
     n = len(unique_peaks)
 
-    # TODO: Due to the use of Python 2, integer division returns an integer value
+    # Due to the use of Python 2, integer division returns an integer value
     # I'm casting the result to an integer to be consistent with the original CHEERS
-    # Check if this is valid with the statistical model
-    mean_sd = math.sqrt(int((num_peaks**2 - 1) / (12 * n)))
+    if old_p_values:
+        mean_sd = math.sqrt(int((num_peaks**2 - 1) / (12 * n)))
+    else:
+        mean_sd = math.sqrt((num_peaks**2 - 1) / (12 * n))
+    
     mean_mean = (1 + num_peaks) / 2
 
     p_values = 1 - scipy.stats.norm.cdf(observed_rank_means.values, loc=mean_mean, scale=mean_sd)
@@ -302,11 +285,8 @@ def main():
     # Rank peaks within each condition
     rank_data = rank_norm_data(norm_data)
 
-    # Load SNP list from either LD information or a flat file
-    if args.ld:
-        snp_list = load_ld_snps(args.ld)
-    else:
-        snp_list = load_snp_list(args.snp_list)
+    # Load SNP list
+    snp_list = load_snp_list(args.snp_list)
     
     # Identify overlapping peak-SNP pairs and unique peaks
     peak_overlaps, unique_peaks = overlap_peaks_with_snps(rank_data, snp_list)
@@ -316,7 +296,7 @@ def main():
     unique_peaks.to_csv(os.path.join(args.outdir, f'{args.trait}_uniquePeaks.txt'), sep='\t', index=None)
 
     # Calculate p-values based on the statistical model
-    observed_rank_means, p_values, N, n, mean_mean, mean_sd = calc_enrichment(unique_peaks, len(norm_data))
+    observed_rank_means, p_values, N, n, mean_mean, mean_sd = calc_enrichment(unique_peaks, len(norm_data), args.old_p_values)
 
     # Write observed rank means and p-values to disk
     p_values.to_csv(os.path.join(args.outdir, f'{args.trait}_disease_enrichment_pValues.txt'), sep='\t', header=False)
