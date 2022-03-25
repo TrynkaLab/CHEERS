@@ -4,7 +4,7 @@ CHEERS (Chromatin Element Enrichment Ranking by Specificity) is a method to dete
  
 ## **Requirements**
  
-CHEERS is written for **Python 2.7**. Please see the branch python3 for a **Python3.8** version.
+CHEERS is written for **Python 2.7**. Please see the branch python3 for a **Python3.8** version and a script to create test data.
 It uses the following modules:
 
 os  
