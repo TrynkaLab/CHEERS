@@ -1,10 +1,12 @@
 # CHEERS
  
 CHEERS (Chromatin Element Enrichment Ranking by Specificity) is a method to determine enrichment of annotations in GWAS significant loci. In addition to SNP-peak overlap, CHEERS takes into account peak properties as reflected by quantitative changes in read counts within peaks.
+Main code by Blagoje Soskic.
+LD calculation by Lara Bossini-Castillo, Python3.8 version  & test dataset courtesy of [Nikhil Milind](https://github.com/NMilind). 
  
 ## Requirements
  
-CHEERS is written for **Python 3.8**. Please see the main branch python3 for a **Python2.7** version. It uses the following base modules:
+This is a rewrite of CHEERS for **Python 3.8**. Please see the main branch python3 for a **Python2.7** version. It uses the following base modules:
 
 1. `argparse`
 2. `functools`
