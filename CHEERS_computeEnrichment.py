@@ -119,6 +119,7 @@ def load_data(file_path):
     norm_matrix.start = norm_matrix.start.astype(int)
     norm_matrix.end = norm_matrix.end.astype(int)
     norm_matrix.sort_values(['chr', 'start', 'end'], ignore_index=True, inplace=True)
+    norm_matrix.reset_index(drop=True, inplace=True)
 
     return norm_matrix
 
@@ -154,6 +155,7 @@ def load_snp_list(file_path):
     snp_list.chr = snp_list.chr.astype(str)
     snp_list.pos = snp_list.pos.astype(int)
     snp_list.sort_values(['chr', 'pos'], inplace=True)
+    snp_list.reset_index(drop=True, inplace=True)
 
     return snp_list
 
