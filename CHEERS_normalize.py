@@ -126,6 +126,7 @@ def read_files(files):
     count_data.set_index(count_data.chr + '-' + count_data.start.map(str) + '-' + count_data.end.map(str), inplace=True)
    
     count_data.drop(['chr', 'start', 'end'], axis=1, inplace=True)
+    count_data = count_data.apply(pd.to_numeric)
 
     return count_data
 

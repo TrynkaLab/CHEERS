@@ -115,7 +115,11 @@ def load_data(file_path):
     '''
 
     norm_matrix = pd.read_csv(file_path, sep='\t')
+    norm_matrix.chr = norm_matrix.chr.astype(str)
+    norm_matrix.start = norm_matrix.start.astype(int)
+    norm_matrix.end = norm_matrix.end.astype(int)
     norm_matrix.sort_values(['chr', 'start', 'end'], ignore_index=True, inplace=True)
+    norm_matrix.reset_index(drop=True, inplace=True)
 
     return norm_matrix
 
@@ -147,7 +151,11 @@ def load_snp_list(file_path):
 
     snp_list = pd.read_csv(file_path, sep='\t', header=None)
     snp_list.columns = ['name', 'chr', 'pos']
+    snp_list.name = snp_list.name.astype(str)
+    snp_list.chr = snp_list.chr.astype(str)
+    snp_list.pos = snp_list.pos.astype(int)
     snp_list.sort_values(['chr', 'pos'], inplace=True)
+    snp_list.reset_index(drop=True, inplace=True)
 
     return snp_list
 
@@ -228,6 +236,11 @@ def calc_enrichment(unique_peaks, num_peaks, old_p_values):
 
     n = len(unique_peaks)
 
+    if n == 0:
+        p_values = pd.Series(np.full(observed_rank_means.shape, np.nan))
+        p_values.index = observed_rank_means.index
+        return observed_rank_means, p_values, num_peaks, n, np.nan, np.nan
+
     # Due to the use of Python 2, integer division returns an integer value
     # I'm casting the result to an integer to be consistent with the original CHEERS
     if old_p_values:
@@ -299,8 +312,8 @@ def main():
     observed_rank_means, p_values, N, n, mean_mean, mean_sd = calc_enrichment(unique_peaks, len(norm_data), args.old_p_values)
 
     # Write observed rank means and p-values to disk
-    p_values.to_csv(os.path.join(args.outdir, f'{args.trait}_disease_enrichment_pValues.txt'), sep='\t', header=False)
-    observed_rank_means.to_csv(os.path.join(args.outdir, f'{args.trait}_disease_enrichment_observedMeanRank.txt'), sep='\t', header=False)
+    p_values.to_csv(os.path.join(args.outdir, f'{args.trait}_disease_enrichment_pValues.txt'), sep='\t', header=False, na_rep='NA')
+    observed_rank_means.to_csv(os.path.join(args.outdir, f'{args.trait}_disease_enrichment_observedMeanRank.txt'), sep='\t', header=False, na_rep='NA')
 
     # Store the end time of the program
     end_time = time.time()
